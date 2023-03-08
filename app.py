@@ -2,9 +2,11 @@
 from flask import (Flask, request, jsonify, render_template)
 from pywebpush import webpush, WebPushException
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
 port = int(os.environ.get("PORT", "3500"))
+CORS(app) # 等於 CORS(app, resources={r"/*": {"origins": "*"}})
 
 public_key = 'BI71JOpQDfwAttma_GJ2pIXLvpV3SqLzMHP92Q1snHUnCtUBoBCJyBYiwkX-4_4Z64rVtDW86kzG3peFHmAn88s'
 private_key = 'FesoGZ-SCIKVTaEQSAO8g1gpcgwAT1lqqz6YRa6_Yx4'
@@ -55,14 +57,21 @@ def unsubscribe():
 # trigger web-push event
 def send_webpush(subscription_info, title='New message!', message=''):
     payload = {
-        'notification': {
-            'title': title,
-            'body': message,
+        "notification": {
+            "title": title,
+            "body": message
         }
     }
+    # return webpush(
+    #     subscription_info,
+    #     data=jsonify(payload),
+    #     vapid_private_key=private_key,
+    #     vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
+    # )
+    print('subscription_info: ', subscription_info, 'paylod:', payload)
     return webpush(
         subscription_info,
-        data=jsonify(payload),
+        data="v1 push test",
         vapid_private_key=private_key,
         vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
     )
@@ -76,7 +85,7 @@ def send_notfication():
     # response = dict(subscription_info=subscription_info, title=title, message=message)
     # print(response)
     try:
-        send_webpush(subscription_info, title, message)
+        send_webpush(subscription_info)
         return jsonify({'message': 'Notification sent successfully'}), 200
     except WebPushException as e:
         print(e)
