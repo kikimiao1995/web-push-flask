@@ -6,7 +6,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 port = int(os.environ.get("PORT", "3500"))
-CORS(app) # 等於 CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app) # CORS(app) 等於 CORS(app, resources={r"/*": {"origins": "*"}})
 
 public_key = 'BI71JOpQDfwAttma_GJ2pIXLvpV3SqLzMHP92Q1snHUnCtUBoBCJyBYiwkX-4_4Z64rVtDW86kzG3peFHmAn88s'
 private_key = 'FesoGZ-SCIKVTaEQSAO8g1gpcgwAT1lqqz6YRa6_Yx4'
@@ -26,15 +26,22 @@ def subscribe():
     if request.is_json: # content_type == 'application/json'
         uid = request.json.get("uid")
         subscription_info = request.json.get("subscription_info")
+        print('=========================================================')
         print(uid, subscription_info)
-        
+        print('=========================================================')
         # 比對 uid 是否有重複的 subscription_info
 
         # 無重複，將 subscription_info 存入資料庫
         my_db[uid] = subscription_info
         print('my_db', my_db)
 
-        response = dict(message="Successfully unsubscribed")
+        webpush(
+            subscription_info,
+            data="v1 push test",
+            vapid_private_key=private_key,
+            vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
+        )
+        response = dict(message="Successfully subscribed")
         return jsonify(response), 200
     else:
         return "Content type is not supported."
@@ -68,7 +75,7 @@ def send_webpush(subscription_info, title='New message!', message=''):
     #     vapid_private_key=private_key,
     #     vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
     # )
-    print('subscription_info: ', subscription_info, 'paylod:', payload)
+    # print('subscription_info: ', subscription_info, 'paylod:', payload)
     return webpush(
         subscription_info,
         data="v1 push test",
