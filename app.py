@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from flask import (Flask, request, jsonify, render_template)
 from pywebpush import webpush, WebPushException
+import os
 
 app = Flask(__name__)
+port = int(os.environ.get("PORT", "3500"))
 
 public_key = 'BI71JOpQDfwAttma_GJ2pIXLvpV3SqLzMHP92Q1snHUnCtUBoBCJyBYiwkX-4_4Z64rVtDW86kzG3peFHmAn88s'
 private_key = 'FesoGZ-SCIKVTaEQSAO8g1gpcgwAT1lqqz6YRa6_Yx4'
@@ -82,4 +84,4 @@ def send_notfication():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=port)
