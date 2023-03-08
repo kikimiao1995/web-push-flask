@@ -22,7 +22,8 @@
     <script>
         const button = document.getElementById('send-button')
         button.addEventListener('click', async () => {
-            button.value = 'loading...'
+            try {
+                button.value = 'loading...'
             const subscriptionInfo = JSON.parse(document.getElementById('subscription-info').value)
             const title = document.getElementById('title').value
             const message = document.getElementById('message').value
@@ -40,6 +41,10 @@
             })
             console.log('data: ', data)
             button.value = 'submit'
+            } catch (err) {
+                button.value = 'submit'
+                console.error(err)
+            }
         })
 
     </script>
