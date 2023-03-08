@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import (Flask, request, jsonify, render_template)
-from pywebpush import webpush
+from pywebpush import webpush, WebPushException
 
 app = Flask(__name__)
 
