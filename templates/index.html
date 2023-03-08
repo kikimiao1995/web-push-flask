@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Flask (Backend)</h1>
+    <h3><label for="subscription-info">subscription-info:</label></h3>
+    <textarea id="subscription-info" name="subscription-info" rows="10" cols="50"></textarea>
+    <br>
+    <h3><label for="title">title:</label></h3>
+    <textarea id="title" name="title" rows="2" cols="50">default tilte</textarea>
+    <br>
+    <h3><label for="message">message</label></h3>
+    <textarea id="message" name="message" rows="2" cols="50">default message</textarea>
+    <br>
+    <br>
+    <input type="button" value="Submit" id="send-button">
+    <script>
+        const button = document.getElementById('send-button')
+        button.addEventListener('click', async () => {
+            button.value = 'loading...'
+            const subscriptionInfo = JSON.parse(document.getElementById('subscription-info').value)
+            const title = document.getElementById('title').value
+            const message = document.getElementById('message').value
+            if(!subscriptionInfo) return
+            const data = await fetch('/send-notfication', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    subscription_info: subscriptionInfo,
+                    title,
+                    message
+                })
+            })
+            console.log('data: ', data)
+            button.value = 'submit'
+        })
+
+    </script>
+</body>
+</html>
