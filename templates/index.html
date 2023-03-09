@@ -39,6 +39,11 @@
                     message
                 })
             })
+            console.log(JSON.stringify({
+                    subscription_info: subscriptionInfo,
+                    title,
+                    message
+                }))
             button.value = 'submit'
             } catch (err) {
                 button.value = 'submit'

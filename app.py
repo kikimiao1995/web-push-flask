@@ -3,6 +3,7 @@ from flask import (Flask, request, jsonify, render_template)
 from pywebpush import webpush, WebPushException
 import os
 from flask_cors import CORS
+import json
 
 app = Flask(__name__)
 port = int(os.environ.get("PORT", "3500"))
@@ -26,18 +27,17 @@ def subscribe():
     if request.is_json: # content_type == 'application/json'
         uid = request.json.get("uid")
         subscription_info = request.json.get("subscription_info")
-        print('=========================================================')
-        print(uid, subscription_info)
-        print('=========================================================')
         # 比對 uid 是否有重複的 subscription_info
 
         # 無重複，將 subscription_info 存入資料庫
         my_db[uid] = subscription_info
         print('my_db', my_db)
-
+        data = {"title": "Flask推播訂閱", "message": "Flask 推播成功訂閱！！"}
         webpush(
             subscription_info,
-            data="v1 push test",
+            # data=jsonify(notfication),
+            # data=json.dumps(data),
+            data="訂閱成功",
             vapid_private_key=private_key,
             vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
         )
@@ -63,24 +63,12 @@ def unsubscribe():
 
 # trigger web-push event
 def send_webpush(subscription_info, title='New message!', message=''):
-    payload = {
-        "notification": {
-            "title": title,
-            "body": message
-        }
-    }
-    # return webpush(
-    #     subscription_info,
-    #     data=jsonify(payload),
-    #     vapid_private_key=private_key,
-    #     vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
-    # )
-    # print('subscription_info: ', subscription_info, 'paylod:', payload)
+    data = {"title": title, "message": message}
     return webpush(
         subscription_info,
-        data="v1 push test",
+        data=json.dumps(data),
         vapid_private_key=private_key,
-        vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
+        vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"} # 這裡填寫公司的email
     )
 
 # demo
@@ -89,15 +77,15 @@ def send_notfication():
     subscription_info = request.json.get("subscription_info")
     title = request.json.get("title")
     message = request.json.get("message")
-    # response = dict(subscription_info=subscription_info, title=title, message=message)
-    # print(response)
     try:
-        send_webpush(subscription_info)
-        return jsonify({'message': 'Notification sent successfully'}), 200
+        if subscription_info:
+            send_webpush(subscription_info, title, message)
+            return jsonify({'message': 'Notification sent successfully'}), 200
+        else:
+            return jsonify({'message': 'No subscription Info'}), 200
     except WebPushException as e:
         print(e)
         return jsonify({'message': 'Notification failed to send'})
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=port)
