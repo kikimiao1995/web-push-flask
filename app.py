@@ -31,16 +31,10 @@ def subscribe():
 
         # 無重複，將 subscription_info 存入資料庫
         my_db[uid] = subscription_info
-        print('my_db', my_db)
+
         data = {"title": "Flask推播訂閱", "message": "Flask 推播成功訂閱！！"}
-        webpush(
-            subscription_info,
-            # data=jsonify(notfication),
-            # data=json.dumps(data),
-            data="訂閱成功",
-            vapid_private_key=private_key,
-            vapid_claims={"sub": "mailto:kikimiao1995@gmail.com"}
-        )
+        send_webpush(subscription_info, data)
+        
         response = dict(message="Successfully subscribed")
         return jsonify(response), 200
     else:
@@ -62,8 +56,7 @@ def unsubscribe():
     pass
 
 # trigger web-push event
-def send_webpush(subscription_info, title='New message!', message=''):
-    data = {"title": title, "message": message}
+def send_webpush(subscription_info, data):
     return webpush(
         subscription_info,
         data=json.dumps(data),
@@ -79,7 +72,8 @@ def send_notfication():
     message = request.json.get("message")
     try:
         if subscription_info:
-            send_webpush(subscription_info, title, message)
+            data = {"title": title, "message": message}
+            send_webpush(subscription_info, data)
             return jsonify({'message': 'Notification sent successfully'}), 200
         else:
             return jsonify({'message': 'No subscription Info'}), 200
