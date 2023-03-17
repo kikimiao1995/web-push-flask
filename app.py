@@ -52,7 +52,7 @@ def unsubscribe():
         response = dict(message="Successfully unsubscribed")
         return jsonify(response), 200
     else:
-        return "Content type is not supported."
+        return jsonify({"message": "Content type is not supported."})
     pass
 
 # trigger web-push event
